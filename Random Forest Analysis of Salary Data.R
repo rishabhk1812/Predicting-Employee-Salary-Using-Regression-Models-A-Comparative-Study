@@ -1,0 +1,65 @@
+data1 <- read.csv("Salary Data.csv")
+
+str(data1)
+
+# Create training (70%) and testing (30%) datasets
+set.seed(123)  # For reproducibility
+sample_indices <- sample(nrow(data1), 0.7 * nrow(data1))  # Randomly sample 70%
+train_data <- data1[sample_indices, ]
+test_data <- data1[-sample_indices, ]
+
+# Train the Random Forest model
+rf_model <- randomForest(Salary ~ Age + Gender + Education + Work_ex, 
+                         data = train_data, 
+                         ntree = 500)  # Use 100 trees
+
+# View the model summary
+print(rf_model)
+
+# Predict on the test data
+predicted_salaries <- predict(rf_model, newdata = test_data)
+
+# Compare actual vs predicted salaries
+results <- data.frame(
+  Actual_Salary = test_data$Salary,
+  Predicted_Salary = predicted_salaries
+)
+
+print(results)
+
+# Calculate Mean Squared Error (MSE)
+mse <- mean((results$Actual_Salary - results$Predicted_Salary)^2)
+print(paste("Mean Squared Error:", mse))
+
+rmse <- sqrt(mean((results$Actual_Salary - results$Predicted_Salary)^2))
+print(paste("Root Mean Squared Error:", rmse))
+
+# Calculate R-Squared
+ss_total <- sum((test_data$Salary - mean(test_data$Salary))^2)
+ss_residual <- sum((test_data$Salary - predicted_salaries)^2)
+r_squared <- 1 - (ss_residual / ss_total)
+print(paste("R-Squared:", r_squared))
+
+
+# Example: Predict salary for a new individual
+new_person <- data.frame(
+  Age = 28,
+  Gender = "Male",
+  Education = "Bachelor",
+  Work_ex = 12
+)
+
+str(new_person)
+
+# Predict the salary
+predicted_salary <- predict(rf_model, newdata = new_person)
+print(predicted_salary)
+
+
+
+
+
+
+
+
+
